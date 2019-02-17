@@ -1,3 +1,9 @@
+
+'''
+Models
+
+'''
+
 from datetime import datetime
 from app import db, login
 from flask_login import UserMixin
@@ -5,6 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 
 
+# User database model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
@@ -28,12 +35,7 @@ class User(UserMixin, db.Model):
         return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
 
-
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-
-
+# Post (user post) database model
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
@@ -43,3 +45,8 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post {}>'.format(self.body)
         
+
+# User loginloader
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))

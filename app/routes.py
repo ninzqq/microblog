@@ -1,4 +1,10 @@
 
+'''
+Logic behind the pages. 
+
+'''
+
+# IMPORTS
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm
@@ -8,6 +14,7 @@ from app.models import User
 from datetime import datetime
 
 
+# Index / Front -page
 @app.route('/')
 @app.route('/index')
 @login_required
@@ -25,6 +32,7 @@ def index():
     return render_template('index.html', title='Home', posts=posts)
 
 
+# Login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -43,11 +51,14 @@ def login():
     return render_template('login.html', title='Sign In', form=form)
 
 
+# Logout functionality. Flask handles this automatically when 'logout_user()' is called.
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
+# Registration page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -56,12 +67,14 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+        db.session.add(user) # Adding new user to the database table.
+        db.session.commit() # Committing changes to the database / "updating" it.
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+
+# Users' profile page
 @app.route('/user/<username>')
 @login_required
 def user(username):
@@ -72,12 +85,16 @@ def user(username):
     ]
     return render_template('user.html', user=user, posts=posts)
 
+
+# These functions are executed before requesting the page from the server
 @app.before_request
 def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
 
+
+# Edit profile 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
